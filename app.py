@@ -3,6 +3,7 @@ import sqlite3
 from datetime import datetime
 from modules.run_scraper import run_scraper
 from modules.empresa_info import llenar_tabla_empresas
+from modules.classifier import clasificar_empresas
 
 DB_PATH = "vacantes.db"
 
@@ -15,9 +16,19 @@ if st.button("🔍 Ejecutar Scraper (LinkedIn)"):
     run_scraper()
     st.success("✅ Scraping completado.")# Ejecutar el scraper
 
+# Extrae las expresas de las vacantes (unicas)
 if st.button("🔍 Extraer Empresas de Vacantes"):
     llenar_tabla_empresas()
     st.success("✅ Extraccion completado.")
+
+if st.button("🏢 Clasificar todas las empresas"):
+    progress = st.progress(0)
+    status = st.empty()
+
+    with st.spinner("⏳ Clasificando empresas desde vacantes..."):
+        clasificar_empresas(report_callback={"progress": progress, "status": status})
+
+    st.success("🎉 Clasificación completada.")
 
 # Leer la base de datos
 conn = sqlite3.connect(DB_PATH)

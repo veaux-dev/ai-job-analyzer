@@ -81,11 +81,11 @@ def run_scraper():
     # Búsquedas
 # Definiciones modulares para combinaciones
     roles = [
-        "VP", "Vice President", "Director", "Head", "Executive", "Leader"
+        "VP", "Vice President", "Director", "Head", "Executive"
     ]
 
     functions = [
-        "Procurement", "Sourcing", "Purchasing", "Commodity", "Category", "Strategic Sourcing"
+        "Procurement", "Sourcing", "Purchasing", "Commodity", "Category"
     ]
 
     # Combinaciones automáticas tipo tabla 2x2
