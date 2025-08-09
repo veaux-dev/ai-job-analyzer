@@ -82,3 +82,6 @@ def run_full_pipeline():
     ))
     conn.commit()
     conn.close()
+
+if __name__ == "__main__":
+    run_full_pipeline()

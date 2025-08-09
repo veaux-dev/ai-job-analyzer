@@ -6,7 +6,7 @@ import json
 import time
 
 from dotenv import load_dotenv
-from modules.db_vacantes import init_db, insert_vacante
+from modules.db_vacantes import init_db, insert_vacante, finalize_scrape_run
 from lib.linkedin_jobs_scraper import LinkedinScraper
 from lib.linkedin_jobs_scraper.events import Events, EventData, EventMetrics
 from lib.linkedin_jobs_scraper.query import Query, QueryOptions, QueryFilters
@@ -126,6 +126,8 @@ def run_scraper():
 
     end_time = time.time()
     elapsed_minutes = (end_time - start_time) / 60
+
+    finalize_scrape_run() # marcar como closed las no vistas hoy
 
     print(f"\n✅ Scraping completado. Total de vacantes procesadas: {len(results)}\n")
     print(f"⏱ Tiempo total de scraping: {elapsed_minutes:.2f} minutos")

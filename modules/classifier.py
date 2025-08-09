@@ -36,10 +36,10 @@ def clasificar_vacantes(force=False):
             cambios['es_procurement'] = es_procurement(vac)
             print(f"[{id_}] es_procurement: {cambios['es_procurement']}")
 
-        if cambios.get('es_procurement') or vac['es_procurement']:
-            if force or vac['es_fit_usuario'] is None:
-                cambios['es_fit_usuario'] = es_fit_usuario(vac)
-                print(f"[{id_}] es_fit_usuario: {cambios['es_fit_usuario']}")
+      
+        if force or vac['es_fit_usuario'] is None:
+            cambios['es_fit_usuario'] = es_fit_usuario(vac)
+            print(f"[{id_}] es_fit_usuario: {cambios['es_fit_usuario']}")
 
         if force or vac['nivel_estimado'] is None:
             cambios['nivel_estimado'] = estimar_nivel(vac)

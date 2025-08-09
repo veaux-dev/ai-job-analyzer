@@ -62,6 +62,8 @@ def calculate_hash(vac):
     return hashlib.sha256(link.encode()).hexdigest()
 
 def insert_vacante(vac):
+    NEW_TO_ACTIVE_DAYS = 3  # ajustable
+
     conn = sqlite3.connect("vacantes.db")
     cursor = conn.cursor()
 
@@ -78,18 +80,33 @@ def insert_vacante(vac):
     exists = cursor.fetchone()
 
     if exists:
-        # Solo actualiza last_seen_on
+        # Solo actualiza last_seen_on & Status if needed.
+
+        # 1) Lee estado actual y primera vez visto
+        cursor.execute("""
+            SELECT scraped_at
+            FROM vacantes
+            WHERE job_hash = ?
+        """, (vac["job_hash"],))
+        
+        row = cursor.fetchone()
+        first_seen_date = parse_date(row[0]) if row and row[0] else None
+
+        status="active" if (datetime.today().date()-first_seen_date).days >NEW_TO_ACTIVE_DAYS else "new"
+
         cursor.execute("""
             UPDATE vacantes
-            SET last_seen_on = ?
+            SET last_seen_on = ?,
+            status = ?
             WHERE job_hash = ?
-        """, (now, vac["job_hash"]))
+        """, (now, status, vac["job_hash"]))
+
     else:
         # Inserta nueva vacante
         vac = {
             "scraped_at": now,
             "last_seen_on": now,
-            "status": "active",
+            "status": "new",
             "reviewed_flag": 0,
             **vac
         }
@@ -208,3 +225,16 @@ def update_vacante_fields(vacante_id, cambios: dict):
         for campo, valor in cambios.items():
             cur.execute(f"UPDATE vacantes SET {campo} = ? WHERE job_hash = ?", (valor, vacante_id))
         conn.commit()
+
+def finalize_scrape_run ():
+    today_str = datetime.today().strftime("%Y-%m-%d")
+    with sqlite3.connect("vacantes.db") as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            UPDATE vacantes
+            SET status = 'closed'
+            WHERE last_seen_on IS NOT NULL
+            AND DATE(last_seen_on) < DATE(?)
+            AND status IN ('new', 'active')
+        """, (today_str,))
+    conn.commit()
